@@ -1,5 +1,15 @@
 {% extends "network/layout.html" %}
+{% load static %}
 
 {% block body %}
-    TODO
+    <div id="compose-post">
+        <form id="compose-form">
+            <textarea id="post-content" class="form-control" placeholder="What's on your mind?"></textarea>
+            <button type="submit" class="btn btn-primary">Post</button>
+        </form>
+    </div>
+    <div id="all-posts"></div>
+{% endblock %}
+{% block script %}
+    <script src="{% static 'network/network.js' %}"></script>
 {% endblock %}

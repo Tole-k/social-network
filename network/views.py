@@ -1,10 +1,12 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
 
-from .models import User
+from .models import User, Post
 
 
 def index(request):
@@ -61,3 +63,21 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "network/register.html")
+
+
+@login_required
+@csrf_exempt
+def compose(request):
+    if request.method == 'POST':
+        content = request.POST['content']
+        user = request.user
+        post = Post(user=user, content=content)
+        post.save()
+        return JsonResponse({"message": "Post created successfully."}, status=201)
+    else:
+        return JsonResponse({"error": "POST request required."}, status=400)
+
+
+def all_posts(request):
+    posts = Post.objects.all().order_by('-timestamp').all()
+    return JsonResponse([post.seriaize() for post in posts], safe=False)
