@@ -2,13 +2,18 @@
 {% load static %}
 
 {% block body %}
-    <div id="compose-post">
-        <form id="compose-form">
-            <textarea id="post-content" class="form-control" placeholder="What's on your mind?"></textarea>
-            <button type="submit" class="btn btn-primary">Post</button>
-        </form>
+    <div id="main-page">
+        <h3 style="margin-left: 20px">All Posts</h3>
+        <div class="card" id="compose-post">
+            <form id="compose-form">
+                <h5>New Post</h5>
+                <textarea id="post-content" class="form-control" placeholder="What's on your mind?"></textarea>
+                <input type="submit" value="Post" class="btn btn-primary">
+            </form>
+        </div>
+        <div id="all-posts"></div>
     </div>
-    <div id="all-posts"></div>
+    <div id="profile-page"></div>
 {% endblock %}
 {% block script %}
     <script src="{% static 'network/network.js' %}"></script>

@@ -10,4 +10,6 @@ urlpatterns = [
 
     path("compose", views.compose, name="compose"),
     path("all-posts", views.all_posts, name="all-posts"),
+    path("profile/<str:username>", views.profile, name="profile"),
+    #path("user-posts/<str:username>")
 ]

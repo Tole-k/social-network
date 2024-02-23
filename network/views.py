@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
@@ -69,7 +71,7 @@ def register(request):
 @csrf_exempt
 def compose(request):
     if request.method == 'POST':
-        content = request.POST['content']
+        content = json.loads(request.body).get("content", "")
         user = request.user
         post = Post(user=user, content=content)
         post.save()
@@ -80,4 +82,9 @@ def compose(request):
 
 def all_posts(request):
     posts = Post.objects.all().order_by('-timestamp').all()
-    return JsonResponse([post.seriaize() for post in posts], safe=False)
+    return JsonResponse([post.serialize() for post in posts], safe=False)
+
+
+def profile(request, username):
+    user = User.objects.get(username=username)
+    return JsonResponse(user.serialize())
