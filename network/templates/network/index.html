@@ -4,13 +4,15 @@
 {% block body %}
     <div id="main-page">
         <h3 style="margin-left: 20px">All Posts</h3>
-        <div class="card" id="compose-post">
-            <form id="compose-form">
-                <h5>New Post</h5>
-                <textarea id="post-content" class="form-control" placeholder="What's on your mind?"></textarea>
-                <input type="submit" value="Post" class="btn btn-primary">
-            </form>
-        </div>
+        {% if user.is_authenticated %}
+            <div class="card" id="compose-post">
+                <form id="compose-form">
+                    <h5>New Post</h5>
+                    <textarea id="post-content" class="form-control" placeholder="What's on your mind?"></textarea>
+                    <input type="submit" value="Post" class="btn btn-primary">
+                </form>
+            </div>
+        {% endif %}
         <div id="all-posts"></div>
     </div>
     <div id="profile-page"></div>
