@@ -15,7 +15,11 @@
         {% endif %}
         <div id="all-posts"></div>
     </div>
-    <div id="profile-page"></div>
+    <div id="profile-page">
+        <div style="margin-left: 40px" id="profile"></div>
+        <hr>
+        <div id="user-posts"></div>
+    </div>
 {% endblock %}
 {% block script %}
     <script src="{% static 'network/network.js' %}"></script>

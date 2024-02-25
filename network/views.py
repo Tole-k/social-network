@@ -8,7 +8,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import User, Post
+from .models import User, Post, Following
 
 
 def index(request):
@@ -92,38 +92,37 @@ def profile(request, username):
     return JsonResponse(user.serialize())
 
 
+@login_required
+@csrf_exempt
 def follow(request, username):
     user1 = request.user
+    user1_following = [x.following for x in Following.objects.filter(follower=user1)]
     user2 = User.objects.get(username=username)
+    user2_followers = [x.follower for x in Following.objects.filter(following=user2)]
     if request.method == "POST":
-        if user1 in user2.followers and user2 in user1.following:
-            user2.followers.remove(user1)
-            user1.following.remove(user2)
-            user1.save()
-            user2.save()
+        if user1 in user2_followers:
+            Following.objects.get(follower=user1, following=user2).delete()
             return JsonResponse({"message": "unfollowed successfully"})
-        elif user1 not in user2.followers and user2 not in user1.following:
-            user2.followers.add(user1)
-            user1.following.add(user2)
-            user1.save()
-            user2.save()
+        else:
+            follow = Following(follower=user1, following=user2)
+            follow.save()
             return JsonResponse({"message": "followed successfully"})
     else:
-        if user1 == user2:
+        if user1 == user2 or not user1.is_authenticated:
             return JsonResponse(
                 {
                     "type": 0,
-                    "message": "Unable to follow yourself",
+                    "message": "Unable to follow this user",
                 }
             )
-        elif user1 in user2.followers and user2 in user1.following:
+        elif user1 in user2_followers:
             return JsonResponse(
                 {
                     "type": 1,
                     "message": "You can unfollow this user",
                 }
             )
-        elif user1 not in user2.followers and user2 not in user1.following:
+        else:
             return JsonResponse(
                 {
                     "type": 2,
