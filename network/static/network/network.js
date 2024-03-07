@@ -4,6 +4,9 @@ document.addEventListener('DOMContentLoaded', () => {
             main_page();
         });
     });
+    document.querySelector("#following").addEventListener('click', () => {
+        following_page();
+    });
     main_page();
 })
 
@@ -68,35 +71,31 @@ function profile_page(username) {
     document.querySelector('#profile-page').style.display = 'block';
     fetch(`/profile/${username}`).then(response => response.json()).then(user => {
         const profile = document.querySelector('#profile');
+        profile.innerHTML = `<h1>${user['username']}</h1>`;
         fetch(`follow/${username}`).then(r => r.json()).then(result => {
-            if (!result['type']) {
-                profile.innerHTML = `<h1>${user['username']}</h1>
-                        <p>Followers: ${user['followers'].length}</p>
-                        <p>Following: ${user['following'].length}</p>`;
-
-            } else if (result['type'] === 1) {
-                profile.innerHTML = `<h1>${user['username']}</h1>
-                        <button id="unfollow">Unfollow</button>
-                        <p>Followers: ${user['followers'].length}</p>
-                        <p>Following: ${user['following'].length}</p>`;
+            if (result['type'] === 1) {
+                profile.innerHTML +=
+                    `<button id="unfollow">Unfollow</button>`;
                 document.querySelector('#unfollow').addEventListener('click', () => {
                     fetch(`follow/${username}`, {
                         method: 'POST'
                     }).then(response => response.json()).catch(error => console.log(error));
+                    profile_page(username);
                 })
-            } else {
-                profile.innerHTML = `<h1>${user['username']}</h1>
-                        <button id="follow">follow</button>
-                        <p>Followers: ${user['followers'].length}</p>
-                        <p>Following: ${user['following'].length}</p>`;
+            } else if (result['type'] === 2) {
+                profile.innerHTML +=
+                    `<button id="follow">follow</button>`;
                 document.querySelector('#follow').addEventListener('click', () => {
                     fetch(`follow/${username}`, {
                         method: 'POST'
                     }).then(response => response.json()).catch(error => console.log(error));
+                    profile_page(username);
                 })
 
             }
-        })
+        });
+        profile.innerHTML += `<p>Followers: ${user['followers'].length}</p>
+                            <p>Following: ${user['following'].length}</p>`;
         console.log(user['posts']);
         user['posts'].forEach(post => {
             console.log(post);
@@ -118,6 +117,45 @@ function profile_page(username) {
             }
             document.querySelector('#user-posts').append(element)
         })
-
     });
+}
+
+function following_page() {
+    document.querySelector('#main-page').style.display = 'block';
+    document.querySelector('#profile-page').style.display = 'none';
+    followed_posts();
+    compose();
+}
+
+function followed_posts() {
+    fetch('/followed-posts').then(r => r.json()).then(posts => {
+        console.log(posts);
+        let ctr = 0;
+        posts.forEach(post => {
+            console.log(post);
+            const element = document.createElement('div');
+            console.log(post['likes'].length)
+            if (post['likes'].length > 0) {
+                element.innerHTML = `<div class="post">
+                                  <a id="show-profile${ctr}" href="#">${post['user']}</a>
+                                  <p>${post['content']}</p>
+                                  <p>${post['timestamp']}</p>
+                                  <p>${post['likes'].length}</p>
+                                  </div>`;
+            } else {
+                element.innerHTML = `<div class="post">
+                                  <a id="show-profile${ctr}" href="#">${post['user']}</a>
+                                  <p>${post['content']}</p>
+                                  <p>${post['timestamp']}</p>
+                                  </div>`;
+            }
+            console.log(element);
+            const id = "#show-profile" + ctr++;
+            console.log(id);
+            document.querySelector('#all-posts').append(element);
+            document.querySelector(id).addEventListener('click', () => {
+                profile_page(post['user']);
+            })
+        });
+    }).catch(error => console.log(error));
 }

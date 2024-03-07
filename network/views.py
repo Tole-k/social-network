@@ -129,3 +129,9 @@ def follow(request, username):
                     "message": "You can follow this user",
                 }
             )
+
+
+def followed_posts(request):
+    user_following = Following.objects.filter(follower=request.user).values("following")
+    followed_posts = Post.objects.filter(user__in=user_following)
+    return JsonResponse([post.serialize() for post in followed_posts], safe=False)
