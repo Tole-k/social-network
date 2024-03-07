@@ -80,7 +80,7 @@ function profile_page(username) {
                     fetch(`follow/${username}`, {
                         method: 'POST'
                     }).then(response => response.json()).catch(error => console.log(error));
-                    profile_page(username);
+                    location.reload();
                 })
             } else if (result['type'] === 2) {
                 profile.innerHTML +=
@@ -89,7 +89,7 @@ function profile_page(username) {
                     fetch(`follow/${username}`, {
                         method: 'POST'
                     }).then(response => response.json()).catch(error => console.log(error));
-                    profile_page(username);
+                    location.reload();
                 })
 
             }
