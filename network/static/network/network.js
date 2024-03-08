@@ -4,9 +4,13 @@ document.addEventListener('DOMContentLoaded', () => {
             main_page();
         });
     });
-    document.querySelector("#following").addEventListener('click', () => {
-        following_page();
-    });
+    try {
+        document.querySelector("#following").addEventListener('click', () => {
+            following_page();
+        });
+    } catch (error) {
+        console.log(error);
+    }
     main_page();
 })
 
@@ -128,34 +132,42 @@ function following_page() {
 }
 
 function followed_posts() {
-    fetch('/followed-posts').then(r => r.json()).then(posts => {
-        console.log(posts);
-        let ctr = 0;
-        posts.forEach(post => {
-            console.log(post);
-            const element = document.createElement('div');
-            console.log(post['likes'].length)
-            if (post['likes'].length > 0) {
-                element.innerHTML = `<div class="post">
-                                  <a id="show-profile${ctr}" href="#">${post['user']}</a>
-                                  <p>${post['content']}</p>
-                                  <p>${post['timestamp']}</p>
-                                  <p>${post['likes'].length}</p>
-                                  </div>`;
-            } else {
-                element.innerHTML = `<div class="post">
-                                  <a id="show-profile${ctr}" href="#">${post['user']}</a>
-                                  <p>${post['content']}</p>
-                                  <p>${post['timestamp']}</p>
-                                  </div>`;
+    fetch('/followed-posts')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-            console.log(element);
-            const id = "#show-profile" + ctr++;
-            console.log(id);
-            document.querySelector('#all-posts').append(element);
-            document.querySelector(id).addEventListener('click', () => {
-                profile_page(post['user']);
-            })
-        });
-    }).catch(error => console.log(error));
+            return response.json();
+        })
+        .then(posts => {
+            console.log(posts);
+            let ctr = 0;
+            posts.forEach(post => {
+                console.log(post);
+                const element = document.createElement('div');
+                console.log(post['likes'].length)
+                if (post['likes'].length > 0) {
+                    element.innerHTML = `<div class="post">
+                                      <a id="show-profile${ctr}" href="#">${post['user']}</a>
+                                      <p>${post['content']}</p>
+                                      <p>${post['timestamp']}</p>
+                                      <p>${post['likes'].length}</p>
+                                      </div>`;
+                } else {
+                    element.innerHTML = `<div class="post">
+                                      <a id="show-profile${ctr}" href="#">${post['user']}</a>
+                                      <p>${post['content']}</p>
+                                      <p>${post['timestamp']}</p>
+                                      </div>`;
+                }
+                console.log(element);
+                const id = "#show-profile" + ctr++;
+                console.log(id);
+                document.querySelector('#all-posts').append(element);
+                document.querySelector(id).addEventListener('click', () => {
+                    profile_page(post['user']);
+                })
+            });
+        })
+        .catch(error => console.log('Fetch error: ', error));
 }

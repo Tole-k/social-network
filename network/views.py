@@ -133,5 +133,7 @@ def follow(request, username):
 
 def followed_posts(request):
     user_following = Following.objects.filter(follower=request.user).values("following")
-    followed_posts = Post.objects.filter(user__in=user_following)
-    return JsonResponse([post.serialize() for post in followed_posts], safe=False)
+    followed_post = (
+        Post.objects.filter(user__in=user_following).order_by("-timestamp").all()
+    )
+    return JsonResponse([post.serialize() for post in followed_post], safe=False)
