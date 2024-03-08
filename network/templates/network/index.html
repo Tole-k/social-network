@@ -3,7 +3,7 @@
 
 {% block body %}
     <div id="main-page">
-        <h3 style="margin-left: 20px">All Posts</h3>
+        <h3 id="title" style="margin-left: 20px">All Posts</h3>
         {% if user.is_authenticated %}
             <div class="card" id="compose-post">
                 <form id="compose-form">
