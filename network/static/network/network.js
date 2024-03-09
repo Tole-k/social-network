@@ -49,11 +49,11 @@ function compose()
     }
 }
 
-function all_posts()
+function all_posts(page_num)
 {
     document.querySelector('#title').textContent = 'All Posts';
     document.querySelector('#all-posts').innerHTML = ``;
-    fetch('/all-posts').then(r => r.json()).then(posts =>
+    fetch(`/all-posts/${page_num}`).then(r => r.json()).then(posts =>
     {
         let ctr = 0;
         posts.forEach(post =>
@@ -86,6 +86,7 @@ function all_posts()
                 profile_page(post['user']);
             })
         });
+
     }).catch(error => console.log(error));
 }
 

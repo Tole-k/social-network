@@ -2,6 +2,7 @@ import json
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
@@ -82,9 +83,11 @@ def compose(request):
         return JsonResponse({"error": "POST request required."}, status=400)
 
 
-def all_posts(request):
+def all_posts(request, page_num):
     posts = Post.objects.all().order_by("-timestamp").all()
-    return JsonResponse([post.serialize() for post in posts], safe=False)
+    p = Paginator(posts, 10)
+    page = p.page(page_num)
+    return JsonResponse([post.serialize() for post in page.object_list], safe=False)
 
 
 def profile(request, username):
