@@ -87,7 +87,9 @@ def all_posts(request, page_num):
     posts = Post.objects.all().order_by("-timestamp").all()
     p = Paginator(posts, 10)
     page = p.page(page_num)
-    return JsonResponse([post.serialize() for post in page.object_list], safe=False)
+    return JsonResponse({"has_next": page.has_next(),
+                         "has_previous": page.has_previous(),
+                         "posts": [post.serialize() for post in page.object_list]}, safe=False)
 
 
 def profile(request, username):

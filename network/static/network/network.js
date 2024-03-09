@@ -26,7 +26,7 @@ function main_page()
 {
     document.querySelector('#main-page').style.display = 'block';
     document.querySelector('#profile-page').style.display = 'none';
-    all_posts();
+    all_posts(1);
     compose();
 }
 
@@ -53,10 +53,10 @@ function all_posts(page_num)
 {
     document.querySelector('#title').textContent = 'All Posts';
     document.querySelector('#all-posts').innerHTML = ``;
-    fetch(`/all-posts/${page_num}`).then(r => r.json()).then(posts =>
+    fetch(`/all-posts/${page_num}`).then(r => r.json()).then(page =>
     {
         let ctr = 0;
-        posts.forEach(post =>
+        page['posts'].forEach(post =>
         {
             console.log(post);
             const element = document.createElement('div');
@@ -86,6 +86,32 @@ function all_posts(page_num)
                 profile_page(post['user']);
             })
         });
+        const ul = document.createElement('ul');
+        ul.classList.add('pagination');
+        document.querySelector('#pagination').append(ul);
+        console.log(document.querySelector('#pagination'));
+        if (page['has_previous'])
+        {
+            const previous = document.createElement('li');
+            previous.classList.add('page-item');
+            previous.innerHTML = `<a class="page-link" href="#">Previous</a>`;
+            previous.addEventListener('click', () =>
+            {
+                all_posts(page_num - 1);
+            })
+            ul.appendChild(previous);
+        }
+        if (page['has_next'])
+        {
+            const next = document.createElement('li');
+            next.classList.add('page-item');
+            next.innerHTML = `<a class="page-link" href="#">Next</a>`;
+            next.addEventListener('click', () =>
+            {
+                all_posts(page_num + 1);
+            })
+            ul.appendChild(next);
+        }
 
     }).catch(error => console.log(error));
 }
