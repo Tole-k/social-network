@@ -9,7 +9,7 @@ urlpatterns = [
     path("register", views.register, name="register"),
     path("compose", views.compose, name="compose"),
     path("all-posts/<int:page_num>", views.all_posts, name="all-posts"),
-    path("profile/<str:username>", views.profile, name="profile"),
+    path("profile/<str:username>/<int:page_num>", views.profile, name="profile"),
     path("follow/<str:username>", views.follow, name="follow"),
-    path("followed-posts", views.followed_posts, name="followed-posts"),
+    path("followed-posts/<int:page_num>", views.followed_posts, name="followed-posts"),
 ]

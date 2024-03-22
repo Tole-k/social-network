@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.paginator import Paginator
 from django.db import models
 from django.db.models import CASCADE
 
@@ -6,7 +7,10 @@ from django.db.models import CASCADE
 class User(AbstractUser):
     pass
 
-    def serialize(self):
+    def serialize(self, page_num):
+        posts = self.posts.all().order_by("-timestamp").all()
+        p = Paginator(posts, 10)
+        page = p.page(page_num)
         return {
             "id": self.id,
             "username": self.username,
@@ -17,10 +21,11 @@ class User(AbstractUser):
             "following": [
                 x.following.username for x in Following.objects.filter(follower=self)
             ],
-            "posts": [
-                post.serialize()
-                for post in self.posts.all().order_by("-timestamp").all()
-            ],
+            "page": {
+                "has_next": page.has_next(),
+                "has_previous": page.has_previous(),
+                "posts": [post.serialize() for post in page.object_list],
+            },
         }
 
 

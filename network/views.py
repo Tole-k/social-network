@@ -87,14 +87,24 @@ def all_posts(request, page_num):
     posts = Post.objects.all().order_by("-timestamp").all()
     p = Paginator(posts, 10)
     page = p.page(page_num)
-    return JsonResponse({"has_next": page.has_next(),
-                         "has_previous": page.has_previous(),
-                         "posts": [post.serialize() for post in page.object_list]}, safe=False)
+    return JsonResponse(
+        {
+            "current_user": request.user.username,
+            "page": {
+                "has_next": page.has_next(),
+                "has_previous": page.has_previous(),
+                "posts": [post.serialize() for post in page.object_list],
+            },
+        },
+        safe=False,
+    )
 
 
-def profile(request, username):
+def profile(request, username, page_num):
     user = User.objects.get(username=username)
-    return JsonResponse(user.serialize())
+    return JsonResponse(
+        {"current_user": request.user.username, "user": user.serialize(page_num)}
+    )
 
 
 @login_required
@@ -136,9 +146,21 @@ def follow(request, username):
             )
 
 
-def followed_posts(request):
+def followed_posts(request, page_num):
     user_following = Following.objects.filter(follower=request.user).values("following")
     followed_post = (
         Post.objects.filter(user__in=user_following).order_by("-timestamp").all()
     )
-    return JsonResponse([post.serialize() for post in followed_post], safe=False)
+    p = Paginator(followed_post, 10)
+    page = p.page(page_num)
+    return JsonResponse(
+        {
+            "current_user": request.user.username,
+            "page": {
+                "has_next": page.has_next(),
+                "has_previous": page.has_previous(),
+                "posts": [post.serialize() for post in page.object_list],
+            },
+        },
+        safe=False,
+    )
