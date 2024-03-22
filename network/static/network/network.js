@@ -53,6 +53,7 @@ function all_posts(page_num)
 {
     document.querySelector('#title').textContent = 'All Posts';
     document.querySelector('#all-posts').innerHTML = ``;
+    document.querySelector('#paginate').innerHTML = ``;
     fetch(`/all-posts/${page_num}`).then(r => r.json()).then(page =>
     {
         let ctr = 0;
@@ -88,8 +89,8 @@ function all_posts(page_num)
         });
         const ul = document.createElement('ul');
         ul.classList.add('pagination');
-        document.querySelector('#pagination').append(ul);
-        console.log(document.querySelector('#pagination'));
+        document.querySelector('#paginate').append(ul);
+        console.log(document.querySelector('#paginate'));
         if (page['has_previous'])
         {
             const previous = document.createElement('li');
