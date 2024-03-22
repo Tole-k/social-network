@@ -83,9 +83,8 @@ def compose(request):
         return JsonResponse({"error": "POST request required."}, status=400)
 
 
-def all_posts(request, page_num):
-    posts = Post.objects.all().order_by("-timestamp").all()
-    p = Paginator(posts, 10)
+def paginate(request, posts, page_num, per_page):
+    p = Paginator(posts, per_page)
     page = p.page(page_num)
     return JsonResponse(
         {
@@ -100,6 +99,11 @@ def all_posts(request, page_num):
     )
 
 
+def all_posts(request, page_num):
+    posts = Post.objects.all().order_by("-timestamp").all()
+    paginate(request, posts, page_num, 10)
+
+
 def profile(request, username, page_num):
     user = User.objects.get(username=username)
     return JsonResponse(
@@ -111,7 +115,6 @@ def profile(request, username, page_num):
 @csrf_exempt
 def follow(request, username):
     user1 = request.user
-    user1_following = [x.following for x in Following.objects.filter(follower=user1)]
     user2 = User.objects.get(username=username)
     user2_followers = [x.follower for x in Following.objects.filter(following=user2)]
     if request.method == "POST":
@@ -119,8 +122,8 @@ def follow(request, username):
             Following.objects.get(follower=user1, following=user2).delete()
             return JsonResponse({"message": "unfollowed successfully"})
         else:
-            follow = Following(follower=user1, following=user2)
-            follow.save()
+            Follow = Following(follower=user1, following=user2)
+            Follow.save()
             return JsonResponse({"message": "followed successfully"})
     else:
         if user1 == user2 or not user1.is_authenticated:
@@ -148,19 +151,7 @@ def follow(request, username):
 
 def followed_posts(request, page_num):
     user_following = Following.objects.filter(follower=request.user).values("following")
-    followed_post = (
+    Followed_posts = (
         Post.objects.filter(user__in=user_following).order_by("-timestamp").all()
     )
-    p = Paginator(followed_post, 10)
-    page = p.page(page_num)
-    return JsonResponse(
-        {
-            "current_user": request.user.username,
-            "page": {
-                "has_next": page.has_next(),
-                "has_previous": page.has_previous(),
-                "posts": [post.serialize() for post in page.object_list],
-            },
-        },
-        safe=False,
-    )
+    paginate(request, Followed_posts, page_num, 10)
