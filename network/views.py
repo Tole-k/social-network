@@ -101,7 +101,7 @@ def paginate(request, posts, page_num, per_page):
 
 def all_posts(request, page_num):
     posts = Post.objects.all().order_by("-timestamp").all()
-    paginate(request, posts, page_num, 10)
+    return paginate(request, posts, page_num, 10)
 
 
 def profile(request, username, page_num):
@@ -154,4 +154,4 @@ def followed_posts(request, page_num):
     Followed_posts = (
         Post.objects.filter(user__in=user_following).order_by("-timestamp").all()
     )
-    paginate(request, Followed_posts, page_num, 10)
+    return paginate(request, Followed_posts, page_num, 10)

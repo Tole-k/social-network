@@ -25,7 +25,7 @@ function editing(event) {
     post_content.append()
 }
 
-function display_post(post, context_id) {
+function display_post(post, current_user, context_id) {
     console.log(post);
     const element = document.createElement('div');
     console.log(post['likes'].length);
@@ -35,7 +35,7 @@ function display_post(post, context_id) {
                                     <p class="post_content">${post['content']}</p>
                                   </div>
                                   <p>${post['timestamp']}</p>`;
-    if (result['current_user'] === post['user']) {
+    if (current_user === post['user']) {
         element.innerHTML += `<button id="edit">Edit</button>`;
     }
     if (post['likes'].length > 0) {
@@ -105,7 +105,7 @@ function all_posts(page_num) {
     document.querySelector('#paginate').innerHTML = ``;
     fetch(`/all-posts/${page_num}`).then(r => r.json()).then(result => {
         result.page['posts'].forEach(post => {
-            display_post(post, '#all-posts')
+            display_post(post, result['current_user'], '#all-posts')
         });
         pagination(all_posts, result['current_user'], result.page, '#paginate', page_num);
     }).catch(error => console.log(error));
@@ -152,7 +152,7 @@ function profile_page(username, page_num) {
                             <p id="following-count">Following: ${result.user['following'].length}</p>`;
         console.log(result.user.page['posts']);
         result.user.page['posts'].forEach(post => {
-            display_post(post, '#user-posts');
+            display_post(post, result['current_user'], '#user-posts');
         })
         pagination(profile_page, username, result.user.page, '#user_paginate', page_num);
     });
@@ -174,7 +174,7 @@ function followed_posts(page_num) {
             console.log(result.page['posts']);
             let ctr = 0;
             result.page['posts'].forEach(post => {
-                display_post(post, '#all-posts');
+                display_post(post, result['current_user'], '#all-posts');
             });
             pagination(followed_posts, result['current_user'], result.page, '#paginate', page_num);
         })
