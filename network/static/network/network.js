@@ -16,13 +16,34 @@ document.addEventListener('DOMContentLoaded', () => {
     main_page();
 })
 
-function editing(event) {
+function editing(event, postID) {
     let post = event.target.closest(".post");
     const post_content = post.querySelector(".post_content");
     const post_content_container = post.querySelector(".post_content_container");
-    const new_post_content = document.createElement('textarea');
-    new_post_content.innerHTML = post_content.innerHTML;
-    post_content.append()
+    const tmp_post_content = document.createElement('textarea');
+    tmp_post_content.innerHTML = post_content.innerHTML;
+    post_content_container.innerHTML = "";
+    post_content_container.append(tmp_post_content);
+    const save = document.createElement('input');
+    save.type = 'button';
+    save.value = "Save";
+    const nl = document.createElement('br');
+    post_content_container.append(nl);
+    post_content_container.append(save);
+    save.addEventListener('click', () => {
+        const post_content = document.createElement('p');
+        post_content.classList.add(".post_content");
+        const content = tmp_post_content.value;
+        post_content.innerHTML = content;
+        post_content_container.innerHTML = "";
+        tmp_post_content.remove();
+        post_content_container.append(post_content);
+        fetch(`/edit/${postID}`, {
+            method: 'POST', body: JSON.stringify({
+                content: content
+            })
+        }).then(r => r.json()).then(result => console.log(result)).catch(error => console.log(error));
+    });
 }
 
 function display_post(post, current_user, context_id) {
@@ -46,7 +67,7 @@ function display_post(post, current_user, context_id) {
     element.addEventListener('click', (event) => {
         if (event.target.nodeName === "A") profile_page(post['user'], 1);
         if (event.target.nodeName === "BUTTON") {
-            editing(event);
+            editing(event, post['id']);
         }
     })
 }

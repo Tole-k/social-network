@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -155,3 +156,15 @@ def followed_posts(request, page_num):
         Post.objects.filter(user__in=user_following).order_by("-timestamp").all()
     )
     return paginate(request, Followed_posts, page_num, 10)
+
+
+@login_required
+@csrf_exempt
+def edit(request, post_id):
+    if request.method == "POST":
+        post = Post.objects.get(id=post_id)
+        content = json.loads(request.body).get("content", "")
+        post.content = content
+        post.timestamp = datetime.now()
+        post.save()
+        return JsonResponse({"message": "Post edited successfully."}, status=201)
