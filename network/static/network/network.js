@@ -46,6 +46,23 @@ function editing(event, postID) {
     });
 }
 
+function liking(event, post_model, user, unlike_mode) {
+    fetch(`like/${post_model['id']}/${unlike_mode}`, {method: "POST"}).then(r => r.json()).then(result => console.log(result)).catch(error => console.log(error));
+    let post = event.target.closest(".post");
+    const like_counter = post.querySelector(".like-counter");
+    const btn = post.querySelector(".like");
+    let like_count = parseInt(like_counter.innerHTML.substring(7));
+    if (!unlike_mode) {
+        like_count++;
+        btn.textContent = "Unlike";
+    } else {
+        like_count--;
+        btn.textContent = "Like";
+    }
+    like_counter.innerHTML = `Likes: ` + like_count.toString();
+    return 1 - unlike_mode
+}
+
 function display_post(post, current_user, context_id) {
     console.log(post);
     const element = document.createElement('div');
@@ -56,18 +73,29 @@ function display_post(post, current_user, context_id) {
                                     <p class="post_content">${post['content']}</p>
                                   </div>
                                   <p>${post['timestamp']}</p>`;
+    element.innerHTML += `<p class="like-counter">Likes: ${post['likes'].length}</p>`;
+    let liked;
     if (current_user === post['user']) {
-        element.innerHTML += `<button id="edit">Edit</button>`;
+        element.innerHTML += `<button class="edit">Edit</button>`;
+    } else {
+        if (post['likes'].includes(current_user)) {
+            element.innerHTML += `<button class="like">Unlike</buttonid>`;
+            liked = 1;
+        } else {
+            element.innerHTML += `<button class="like">Like</buttonid>`;
+            liked = 0;
+        }
     }
-    if (post['likes'].length > 0) {
-        element.innerHTML += `<p>${post['likes'].length}</p>`;
-    }
+
     console.log(element);
     document.querySelector(context_id).append(element);
     element.addEventListener('click', (event) => {
         if (event.target.nodeName === "A") profile_page(post['user'], 1);
-        if (event.target.nodeName === "BUTTON") {
+        if (event.target.classList.contains("edit")) {
             editing(event, post['id']);
+        }
+        if (event.target.classList.contains("like")) {
+            liked = liking(event, post, current_user, liked)
         }
     })
 }

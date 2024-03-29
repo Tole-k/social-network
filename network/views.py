@@ -168,3 +168,16 @@ def edit(request, post_id):
         post.timestamp = datetime.now()
         post.save()
         return JsonResponse({"message": "Post edited successfully."}, status=201)
+
+
+@login_required
+@csrf_exempt
+def like(request, post_id, unlike_mode):
+    if request.method == "POST":
+        post = Post.objects.get(id=post_id)
+        if unlike_mode:
+            post.likes.remove(request.user)
+        else:
+            post.likes.add(request.user)
+        post.save()
+        return JsonResponse({"message": "Post liked successfully."}, status=201)
