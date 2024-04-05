@@ -134,6 +134,7 @@ function main_page() {
 
 function compose() {
     if (document.querySelector('#compose-post') != null) {
+        document.querySelector('#compose-post').style.display = 'block';
         document.querySelector('#post-content').value = '';
         document.querySelector('#compose-form').onsubmit = () => {
             const content = document.querySelector('#post-content').value;
@@ -211,11 +212,11 @@ function following_page() {
     document.querySelector('#main-page').style.display = 'block';
     document.querySelector('#profile-page').style.display = 'none';
     followed_posts(1);
-    compose();
 }
 
 function followed_posts(page_num) {
     document.querySelector('#title').textContent = 'Followed Posts';
+    document.querySelector('#compose-post').style.display = "none";
     document.querySelector('#all-posts').innerHTML = ``;
     document.querySelector('#paginate').innerHTML = ``;
     fetch(`/followed-posts/${page_num}`).then(r => r.json())
